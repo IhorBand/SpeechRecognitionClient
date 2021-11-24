@@ -2,7 +2,7 @@
   "profiles": {
     "SpeechRecognitionClient": {
       "commandName": "Project",
-      "commandLineArgs": "-i /tmp/test/test.wav -o=/tmp/test/test.txt -webSocketUrl=ws://helloworld.com/ws -t=vosk -h"
+      "commandLineArgs": "-i B:\\Video30_en.wav -o=B:\\Video30_en_test_deepspeech.js -webSocketUrl=wss://localhost:49167/ws -t deepspeech"
     }
   }
 }
