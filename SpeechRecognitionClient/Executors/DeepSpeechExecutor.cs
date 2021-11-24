@@ -33,37 +33,65 @@ namespace SpeechRecognitionClient.Executors
 
             ClientWebSocket ws = new ClientWebSocket();
             ws.Options.RemoteCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            await ws.ConnectAsync(new Uri(this.webSocketUrl), CancellationToken.None);
+            try
+            {
+                await ws.ConnectAsync(new Uri(this.webSocketUrl), CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || ERROR || ## Message: {ex.Message} \n StackTrace: {ex.StackTrace}");
+            }
 
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Connection to the server was established.");
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Sending Audio File to the Server...");
 
-            FileStream fsSource = new FileStream(
-                this.inputWav,
-                FileMode.Open,
-                FileAccess.Read);
-
-            byte[] data = new byte[1024 * 8];
-            while (true)
+            try
             {
-                int count = fsSource.Read(data, 0, 1024 * 8);
-                if (count == 0)
-                {
-                    break;
-                }
+                FileStream fsSource = new FileStream(
+                    this.inputWav,
+                    FileMode.Open,
+                    FileAccess.Read);
 
-                await this.SendFile(ws, data, count);
+                byte[] data = new byte[1024 * 8];
+                while (true)
+                {
+                    int count = fsSource.Read(data, 0, 1024 * 8);
+                    if (count == 0)
+                    {
+                        break;
+                    }
+
+                    await this.SendFile(ws, data, count);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || ERROR || ## Message: {ex.Message} \n StackTrace: {ex.StackTrace}");
             }
 
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Audio File was successfully sent to the server.");
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Waiting for response from server...");
 
-            await this.ProcessResult(ws);
+            try
+            {
+                await this.ProcessResult(ws);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || ERROR || ## Message: {ex.Message} \n StackTrace: {ex.StackTrace}");
+            }
 
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Result from server was successfully received.");
             Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || INFO || Closing connection with Server.");
-
-            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "OK", CancellationToken.None);
+            
+            try
+            {
+                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "OK", CancellationToken.None);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{DateTime.UtcNow.Date.Year}-{DateTime.UtcNow.Date.Month}-{DateTime.UtcNow.Day} {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second} || ERROR || ## Message: {ex.Message} \n StackTrace: {ex.StackTrace}");
+            }
         }
 
         private async Task SendFile(ClientWebSocket ws, byte[] data, int count)
