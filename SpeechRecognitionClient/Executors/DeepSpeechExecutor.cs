@@ -52,10 +52,11 @@ namespace SpeechRecognitionClient.Executors
                     FileMode.Open,
                     FileAccess.Read);
 
-                byte[] data = new byte[1024 * 8];
+                int sizeBuffer = 1024*512;
+                byte[] data = new byte[sizeBuffer];
                 while (true)
                 {
-                    int count = fsSource.Read(data, 0, 1024 * 8);
+                    int count = fsSource.Read(data, 0, sizeBuffer);
                     if (count == 0)
                     {
                         break;
