@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SpeechRecognitionClient.Abstractions;
 using SpeechRecognitionClient.Models;
@@ -18,10 +19,12 @@ namespace SpeechRecognitionClient.Executors
             var fileBytes = File.ReadAllBytes(inputWav);
             ws.SendAsync(fileBytes, WebSocketMessageType.Binary, true, CancellationToken.None);
 
-            ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
+            this.ProccessResult(ws, outputTxt).Wait();
+        }
 
-            var task = ws.ReceiveAsync(buffer, CancellationToken.None);
-            task.Wait();
+        private async Task ProccessResult(ClientWebSocket ws, string outputTxt)
+        {
+            ArraySegment<Byte> buffer = new ArraySegment<byte>(new Byte[8192]);
 
             WebSocketReceiveResult result = null;
 
@@ -29,7 +32,7 @@ namespace SpeechRecognitionClient.Executors
             {
                 do
                 {
-                    result = task.Result;
+                    result = await ws.ReceiveAsync(buffer, CancellationToken.None);
                     ms.Write(buffer.Array, buffer.Offset, result.Count);
                 }
                 while (!result.EndOfMessage);
